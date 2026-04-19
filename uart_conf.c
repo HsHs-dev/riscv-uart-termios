@@ -9,14 +9,7 @@
 
 int main(int argc, char* argv[]) {
 
-  const char* term;
-
-  if (argc == 2) {
-    term = argv[1];
-  } else {
-    term = "/tmp/ttyV0";
-  }
-
+  const char *term = (argc > 1) ? argv[1] : "/dev/ttyS0";
 
   // opening the serial device for reading/writing in non-blocking mode
   int fd = open(term, O_RDWR | O_NONBLOCK);
@@ -133,12 +126,6 @@ int main(int argc, char* argv[]) {
       case EINVAL:
         perror("TCSANOW");
         break;
-      case EINTR:
-        perror("tcsetattr");
-        break;
-      case EIO:
-        perror("tcsetattr");
-        break;
 
       default:
         perror("tcsetattr");
@@ -149,37 +136,38 @@ int main(int argc, char* argv[]) {
 
   // writing data
   char* hello = "hello from the uart_conf\n";
-  write(fd, hello, strlen(hello));
+  ssize_t bytes_written = write(fd, hello, strlen(hello));
+  if (bytes_written == -1) {
+    perror("write");
+    return EXIT_FAILURE;
+  }
 
   // reading data
-  while (1) {
 
-    struct pollfd pfd;
-    pfd.fd = fd;
-    pfd.events = POLLIN;
+  struct pollfd pfd;
+  pfd.fd = fd;
+  pfd.events = POLLIN;
 
-    const int timeout = 5000;
-    int pollret = poll(&pfd, 1, timeout);
-    if (pollret < 0) {
-      perror("poll");
-      return EXIT_FAILURE;
-    } else if (pollret == 0) {
-      fprintf(stdout, "Timeout: No Data\n");
-      continue;
-    }
-
-    if (pfd.revents & POLLIN) {
-      char buf[256];
-      memset(buf, 0, sizeof(buf));
-      ssize_t read_bytes = read(fd, buf, sizeof(buf));
-      if (read_bytes < 0) {
-        perror("read");
-        break;
-      }
-      fprintf(stdout, "Received %zd bytes: %s", read_bytes, buf);
-    } 
-
+  const int timeout = 5000;
+  int pollret = poll(&pfd, 1, timeout);
+  if (pollret < 0) {
+    perror("poll");
+    return EXIT_FAILURE;
+  } else if (pollret == 0) {
+    fprintf(stderr, "Timeout: No Data\n");
+    return EXIT_FAILURE;
   }
+
+  if (pfd.revents & POLLIN) {
+    char buf[256];
+    memset(buf, 0, sizeof(buf));
+    ssize_t read_bytes = read(fd, buf, sizeof(buf));
+    if (read_bytes < 0) {
+      perror("read");
+      return EXIT_FAILURE;
+    }
+    fprintf(stdout, "Received %zd bytes: %s", read_bytes, buf);
+  } 
 
 
   close(fd);
