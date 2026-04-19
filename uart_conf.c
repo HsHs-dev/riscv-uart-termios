@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
    * - use noncanonical mode for direct sending and no-editing,
    *   allowing for raw transmitting
    * - disable echoing back data
-   * - disable signals to avoid measinterpretation
+   * - disable signals to avoid misinterpretation
    */
 
   // use noncanonical mode
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
   /* 
    * configuring input modes:
    *
-   * - disable software flow control to avoid measinterpretation
+   * - disable software flow control to avoid misinterpretation
    *
    */
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
   /* 
    * configuring output modes:
    *
-   * - disable output post-processing to avoid measinterpretation
+   * - disable output post-processing to avoid misinterpretation
    *
    */
 
