@@ -25,6 +25,14 @@
 #include <string.h>
 #include <poll.h>
 
+/* if something went wrong, close the file descriptor of the port
+ * and exit with failure code */
+int failure(int fd) {
+  close(fd);
+  return EXIT_FAILURE;
+}
+
+
 int main(int argc, char* argv[]) {
 
 
@@ -48,7 +56,7 @@ int main(int argc, char* argv[]) {
         perror("open");
     }
 
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   /* verify that the file descriptor refers to a terminal device */
@@ -65,7 +73,7 @@ int main(int argc, char* argv[]) {
         perror("isatty");
     }
 
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
 
@@ -77,19 +85,19 @@ int main(int argc, char* argv[]) {
 
   if (tcgetattr(fd, &conf) == -1) {
     perror("tcgetattr");
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   /* set the input/output baud rates to B115200 */
 
   if (cfsetispeed(&conf, B115200) == -1) {
     perror("cfsetispeed");
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   if (cfsetospeed(&conf, B115200) == -1) {
     perror("cfsetospeed");
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   /* 
@@ -172,7 +180,7 @@ int main(int argc, char* argv[]) {
         perror("tcsetattr");
     }
 
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   /* transmit a test message over the serial port */
@@ -180,7 +188,7 @@ int main(int argc, char* argv[]) {
   ssize_t bytes_written = write(fd, hello, strlen(hello));
   if (bytes_written == -1) {
     perror("write");
-    return EXIT_FAILURE;
+    failure(fd);
   }
   fprintf(stdout, "wrote %zd bytes to serial port %s\n", bytes_written, term);
 
@@ -195,10 +203,10 @@ int main(int argc, char* argv[]) {
   fprintf(stdout, "%d seconds to read data\n", (timeout/1000));
   if (pollret < 0) {
     perror("poll");
-    return EXIT_FAILURE;
+    failure(fd);
   } else if (pollret == 0) {
     fprintf(stderr, "Timeout: No Data\n");
-    return EXIT_FAILURE;
+    failure(fd);
   }
 
   if (pfd.revents & POLLIN) {
@@ -207,7 +215,7 @@ int main(int argc, char* argv[]) {
     ssize_t read_bytes = read(fd, buf, sizeof(buf));
     if (read_bytes < 0) {
       perror("read");
-      return EXIT_FAILURE;
+      failure(fd);
     }
     fprintf(stdout, "Received %zd bytes: %s", read_bytes, buf);
   } 
