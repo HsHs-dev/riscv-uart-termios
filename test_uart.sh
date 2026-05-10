@@ -34,13 +34,13 @@ echo $! > "$PID_FILE"
 sleep 1
 
 # send mock response to our program
-echo -e "${BLUE}[2/3] send mock firmware response..${NC}"
+echo -e "${BLUE}[2/3] send mock response..${NC}"
 (sleep 1; echo -e "Acknowledge\n") > "$PORT1" &
 
 # run the checker
 echo -e "${BLUE}[3/3] Running checker against $PORT0..${NC}"
 if $BINARY "$PORT0"; then
-    echo -e "${GREEN}✔  Validation Passed${NC}"
+    echo -e "${GREEN}Passed ✅${NC}"
 else
-    echo -e "${RED}✘ Validation Failed${NC}"
+    echo -e "${RED}Failed ❌${NC}"
 fi
