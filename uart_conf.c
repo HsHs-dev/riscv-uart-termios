@@ -29,7 +29,7 @@
  * and exit with failure code */
 int failure(int fd) {
   close(fd);
-  return EXIT_FAILURE;
+  exit(EXIT_FAILURE);
 }
 
 
@@ -217,6 +217,12 @@ int main(int argc, char* argv[]) {
       perror("read");
       failure(fd);
     }
+
+    if (strstr(buf, "Acknowledge") == NULL) {
+      fprintf(stderr, "Received wrong message: %s\n", buf);
+      failure(fd);
+    }
+    
     fprintf(stdout, "Received %zd bytes: %s", read_bytes, buf);
   } 
 
