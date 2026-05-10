@@ -222,10 +222,12 @@ int main(int argc, char* argv[]) {
      hardcoded message checking for testing purposes,
      if you aren't using the testing script feel free to remove it
     */
+    /*
     if (strstr(buf, "Acknowledge") == NULL) {
       fprintf(stderr, "Received wrong message: %s\n", buf);
       failure(fd);
     }
+    */
     
     fprintf(stdout, "Received %zd bytes: %s", read_bytes, buf);
   } 
