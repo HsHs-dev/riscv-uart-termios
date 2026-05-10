@@ -51,7 +51,7 @@ If no argument is provided, the program uses `/dev/ttyS0`.
 
 ## Testing with Virtual Terminals
 
-An automated test script (`test_uart.sh`) is included to validate the program’s functionality without physical hardware. It uses `socat` to create a pair of virtual serial ports that communicate with each other.
+An automated test script (`test_uart.sh`) is included to validate the program’s functionality without physical hardware. It uses `socat` to create a pair of virtual serial ports (one of them being our program) that communicate with each other.
 
 ```bash
 make test
@@ -59,12 +59,10 @@ make test
 
 The script:
 
-1. Creates a virtual bridge (`/tmp/ttyV0` ↔ `/tmp/ttyV1`).
+1. Creates a bridge between two virtual terminals (`/tmp/ttyV0` ↔ `/tmp/ttyV1`).
 2. Sends a message (`Acknowledge`) to one end.
 3. Check that the message was read by the other end.
-4. Reports **Validation Passed** on success, or **Validation Failed** otherwise.
-
-Virtual ports are automatically closed and cleaned up after.
+4. Reports whether the I/O operation worked or not.
 
 ## Project Structure
 
